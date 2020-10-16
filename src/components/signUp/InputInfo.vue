@@ -64,17 +64,29 @@ export default {
     handleSubmit (name) {
       const father = this;
       this.$refs[name].validate((valid) => {
+        // this.$Message.success('注册成功');
         if (valid) {
-          this.$Message.success('注册成功');
           const userinfo = {
-            username: this.formValidate.name,
+            name: this.formValidate.name,
             password: this.formValidate.password,
             mail: this.formValidate.mail,
             phone: this.$route.query.phone
           };
-          this.addSignUpUser(userinfo);
+          //  this.addSignUpUser(userinfo);
           father.SET_SIGN_UP_SETP(2);
-          this.$router.push({ path: '/SignUp/signUpDone' });
+          this.$axios.post('/regist', userinfo
+          ).then(successResponse => {
+            if (successResponse.data.code === 200) {
+              this.$Message.success('注册成功');
+
+              // this.$router.replace({path: '/index'})
+              this.$router.push({ path: '/SignUp/signUpDone' });
+            } else if (successResponse.data.code === 400) {
+              console.log('400失败');
+            }
+          })
+            .catch(failResponse => {
+            });
         } else {
           this.$Message.error('注册失败');
         }

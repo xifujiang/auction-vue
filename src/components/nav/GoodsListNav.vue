@@ -4,15 +4,10 @@
       <div class="search-nav-container">
         <ul>
           <li>全部商品分类</li>
-          <li><router-link to="/">首页</router-link></li>
-          <li><router-link to="/">服装城</router-link></li>
-          <li><router-link to="/">美妆馆</router-link></li>
-          <li><router-link to="/">BIT超市</router-link></li>
-          <li><router-link to="/">生鲜</router-link></li>
-          <li><router-link to="/">全球购</router-link></li>
-          <li><router-link to="/">闪购</router-link></li>
-          <li><router-link to="/">拍卖</router-link></li>
-          <li><router-link to="/">金融</router-link></li>
+          <li v-for="(item, index) in nav" :key="index">
+            <router-link :to="'/GoodsList?ctype='.concat(item.name)" @click.native="flushCom">
+              {{item.name}}</router-link>
+          </li>
         </ul>
       </div>
     </div>
@@ -21,7 +16,30 @@
 
 <script>
 export default {
-  name: 'GoodsListNav'
+  name: 'GoodsListNav',
+  data () {
+    return {
+      nav: []
+    };
+  },
+  created () {
+    this.getOneType();
+  },
+  methods: {
+    getOneType () {
+      this.$axios.get('/oneType')
+        .then(successResponse => {
+          if (successResponse.data.code === 200) {
+            this.nav = successResponse.data.data;
+          }
+        })
+        .catch(failResponse => {
+        });
+    },
+    flushCom () {
+      this.$router.go(0);
+    }
+  }
 };
 </script>
 

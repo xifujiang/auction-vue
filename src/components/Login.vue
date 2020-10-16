@@ -11,14 +11,14 @@
             <p>欢迎登录</p>
           </div>
           <div class="form-box">
-            <Form ref="formInline" :model="formDate" :rules="ruleInline">
-              <FormItem prop="username">
-                  <i-input type="text" v-model="formDate.username" clearable size="large" placeholder="用户名">
+            <Form ref="formInline" :model="formData" :rules="ruleInline">
+              <FormItem prop="name">
+                  <i-input type="text" v-model="formData.name" clearable size="large" placeholder="用户名">
                       <Icon type="person" slot="prepend"></Icon>
                   </i-input>
               </FormItem>
               <FormItem prop="password">
-                  <i-input type="password" v-model="formDate.password" clearable size="large" placeholder="密码">
+                  <i-input type="password" v-model="formData.password" clearable size="large" placeholder="密码">
                       <Icon type="ios-locked-outline" slot="prepend"> </Icon>
                   </i-input>
               </FormItem>
@@ -40,12 +40,12 @@ export default {
   name: 'Login',
   data () {
     return {
-      formDate: {
-        username: '',
+      formData: {
+        name: '',
         password: ''
       },
       ruleInline: {
-        username: [
+        name: [
           { required: true, message: '请输入用户名', trigger: 'blur' }
         ],
         password: [
@@ -58,14 +58,19 @@ export default {
   methods: {
     ...mapMutations(['SET_USER_LOGIN_INFO']),
     ...mapActions(['login']),
+    getUid () {
+      let localStorage = window.localStorage;
+      let loginInfo = localStorage.getItem('loginInfo');
+      this.uid = (JSON.parse(loginInfo))['uid'];
+    },
     handleSubmit (name) {
       const father = this;
-      console.log(this.formDate.username);
       this.$refs[name].validate((valid) => {
         if (valid) {
-          this.login(father.formDate).then(result => {
+          this.login(father.formData).then(result => {
             if (result) {
               this.$Message.success('登录成功');
+              // this.accessWebSocket();
               father.$router.push('/');
             } else {
               this.$Message.error('用户名或密码错误');
@@ -75,7 +80,36 @@ export default {
           this.$Message.error('请填写正确的用户名或密码');
         }
       });
-    }
+    },
+    // accessWebSocket () {
+    //   var socket;
+    //   if (typeof (WebSocket) === 'undefined') {
+    //     console.log('您的浏览器不支持WebSocket');
+    //   } else {
+    //     console.log('您的浏览器支持WebSocket');
+    //     // 实现化WebSocket对象，指定要连接的服务器地址与端口  建立连接
+    //     let uid = this.getUid();
+    //     socket = new WebSocket('ws://localhost:8443/websocket');
+    //     // 打开事件
+    //     socket.onopen = function () {
+    //       console.log('Socket 已打开');
+    //     };
+    //     // 获得消息事件
+    //     socket.onmessage = function (msg) {
+    //       console.log(msg.data);
+    //       // 发现消息进入    开始处理前端触发逻辑
+    //     };
+    //     // 关闭事件
+    //     socket.onclose = function () {
+    //       console.log('Socket已关闭');
+    //     };
+    //     // 发生了错误事件
+    //     socket.onerror = function () {
+    //       alert('Socket发生了错误');
+    //       // 此时可以尝试刷新页面
+    //     };
+    //   }
+    // }
   },
   store
 };

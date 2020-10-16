@@ -10,6 +10,9 @@ const GoodsList = resolve => require(['@/components/GoodsList'], resolve);
 const GoodsDetail = resolve => require(['@/components/GoodsDetail'], resolve);
 const ShoppingCart = resolve => require(['@/components/ShoppingCart'], resolve);
 const Order = resolve => require(['@/components/Order'], resolve);
+const MemberOrder = resolve => require(['@/components/MemberOrder'], resolve);
+const DepositOrder = resolve => require(['@/components/DepositOrder'], resolve);
+const AddMoneyOrder = resolve => require(['@/components/AddMoneyOrder'], resolve);
 const Pay = resolve => require(['@/components/Pay'], resolve);
 const PayDone = resolve => require(['@/components/PayDone'], resolve);
 const Freeback = resolve => require(['@/components/Freeback'], resolve);
@@ -18,12 +21,35 @@ const MyAddress = resolve => require(['@/components/home/MyAddress'], resolve);
 const AddAddress = resolve => require(['@/components/home/AddAddress'], resolve);
 const MyOrder = resolve => require(['@/components/home/MyOrder'], resolve);
 const MyShoppingCart = resolve => require(['@/components/home/MyShoppingCart'], resolve);
+const MyBidingCart = resolve => require(['@/components/home/MyBidingCart'], resolve);
+const UploadShopCart = resolve => require(['@/components/home/UploadShopCart'], resolve);
+const EditShoppingCart = resolve => require(['@/components/home/EditShoppingCart'], resolve);
+const MyMember = resolve => require(['@/components/home/MyMember'], resolve);
+const MemberUpgrade = resolve => require(['@/components/home/MemberUpgrade'], resolve);
 const Merchant = resolve => require(['@/components/Merchant'], resolve);
+const PayGateWay = resolve => require(['@/components/pay/payGateWay'], resolve);
+const Test = resolve => require(['@/components/test/test'], resolve);
+const Socket = resolve => require(['@/components/test/socket'], resolve);
 
 Vue.use(Router);
 
 export default new Router({
   routes: [
+    {
+      path: '/test',
+      name: 'Test',
+      component: Test
+    },
+    {
+      path: '/socket',
+      name: 'Socket',
+      component: Socket
+    },
+    {
+      path: '/payGateWay',
+      name: 'PayGateWay',
+      component: PayGateWay
+    },
     {
       path: '/', // 首页
       name: 'Index',
@@ -82,6 +108,21 @@ export default new Router({
       component: Order
     },
     {
+      path: '/memberOrder',
+      name: 'MemberOrder',
+      component: MemberOrder
+    },
+    {
+      path: '/depositOrder',
+      name: 'DepositOrder',
+      component: DepositOrder
+    },
+    {
+      path: '/addMoneyOrder',
+      name: 'AddMoneyOrder',
+      component: AddMoneyOrder
+    },
+    {
       path: '/pay', // 支付页面
       name: 'Pay',
       component: Pay
@@ -125,6 +166,31 @@ export default new Router({
           path: 'myShoppingCart',
           name: 'MyShoppingCart',
           component: MyShoppingCart
+        },
+        {
+          path: 'myBidingCart',
+          name: 'MyBidingCart',
+          component: MyBidingCart
+        },
+        {
+          path: 'uploadShopCart',
+          name: 'UploadShopCart',
+          component: UploadShopCart
+        },
+        {
+          path: 'editShoppingCart',
+          name: 'EditShoppingCart',
+          component: EditShoppingCart
+        },
+        {
+          path: 'myMember',
+          name: 'MyMember',
+          component: MyMember
+        },
+        {
+          path: 'memberUpgrade',
+          name: 'MemberUpgrade',
+          component: MemberUpgrade
         }
       ]
     },

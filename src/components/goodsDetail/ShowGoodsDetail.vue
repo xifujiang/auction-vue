@@ -3,17 +3,20 @@
     <div class="item-intro-show">
       <div class="item-intro-recommend">
         <div class="item-recommend-title">
-          <p>店铺热销</p>
+          <p>历史出售</p>
         </div>
         <div class="item-intro-recommend-column">
-          <div class="item-recommend-column" v-for="(item, index) in goodsInfo.hot" :key="index">
+          <div class="item-recommend-column" v-for="(item, index) in goodsInfo.historyCommodityList" :key="index">
             <div class="item-recommend-img">
-              <img :src="item.img" alt="">
+              <router-link :to="'/GoodsDetail?cid='.concat(item.cid)" target="_blank">
+                <img :src="item.image" alt="">
+              </router-link>
             </div>
             <div class="item-recommend-intro">
               <span>
-                <span class="item-recommend-top-num">{{index + 1}}</span> 热销{{item.sale}}件</span>
+                <span class="item-recommend-top-num">{{index + 1}}</span> 价格</span>
               <span class="item-recommend-price">￥{{item.price.toFixed(2)}}</span>
+              <span class="item-recommend-price">￥{{item.addprice.toFixed(2)}}</span>
             </div>
           </div>
         </div>
@@ -21,23 +24,37 @@
       <div class="item-intro-detail" ref="itemIntroDetail">
         <div class="item-intro-nav item-tabs">
           <Tabs>
+            <TabPane label="竞购记录">
+              <div class="remarks-title">
+                <span>竞购记录</span>
+                <div>
+                  <el-table :data="goodsInfo.historyBiddingList" style="width: 100%">
+                    <!--商品名-->
+                    <el-table-column prop="uname" label="出价者" sortable width="300" align='center'></el-table-column>
+                    <!--商品名-->
+                    <el-table-column prop="bidtime" label="出价时间" sortable align='center'></el-table-column>
+                    <!--出价者信用-->
+                    <el-table-column prop="score" label="出价者信用" width="200" align='center'></el-table-column>
+                    <!--出价金额-->
+                    <el-table-column prop="bidprice" label="出价金额" width="200" align='center'></el-table-column>
+                  </el-table>
+
+                  <!--<i-table :columns="columns1" :data="historyBid"></i-table>-->
+                </div>
+              </div>
+              <div class="item-param-container">
+                <!--<span class="item-param-box" v-for="(item,index) in goodsInfo.param" :key="index">-->
+                  <!--<span class="item-param-title">{{item.title}}: </span>-->
+                  <!--<span class="item-param-content">{{item.content}}</span>-->
+                <!--</span>-->
+              </div>
+            </TabPane>
             <TabPane label="商品介绍">
               <div class="remarks-title">
                 <span>商品介绍</span>
               </div>
               <div class="item-intro-img" ref="itemIntroGoods">
-                <img :src="item" alt="" v-for="(item,index) in goodsInfo.goodsDetail" :key="index">
-              </div>
-            </TabPane>
-            <TabPane label="规格参数">
-              <div class="remarks-title">
-                <span>规格参数</span>
-              </div>
-              <div class="item-param-container">
-                <span class="item-param-box" v-for="(item,index) in goodsInfo.param" :key="index">
-                  <span class="item-param-title">{{item.title}}: </span>
-                  <span class="item-param-content">{{item.content}}</span>
-                </span>
+                {{goodsInfo.des}}
               </div>
             </TabPane>
             <TabPane label="售后保障">
@@ -48,41 +65,25 @@
                 <div class="remarks-title">
                   <span>商品评价</span>
                 </div>
-                <div class="remarks-analyse-box">
-                  <div class="remarks-analyse-goods">
-                    <i-circle :percent="goodsInfo.remarks.goodAnalyse" stroke-color="#e4393c">
-                      <span class="remarks-analyse-num">{{goodsInfo.remarks.goodAnalyse}}%</span>
-                      <p class="remarks-analyse-title">好评率</p>
-                    </i-circle>
-                  </div>
-                  <div class="remarks-analyse-tags">
-                    <Tag checkable :color="tagsColor[index % 4]" v-for="(item,index) in goodsInfo.remarks.remarksTags" :key="index">{{item}}</Tag>
-                  </div>
-                </div>
-                <div class="remarks-bar">
-                  <span>追评({{goodsInfo.remarks.remarksNumDetail[0]}})</span>
-                  <span>好评({{goodsInfo.remarks.remarksNumDetail[1]}})</span>
-                  <span>中评({{goodsInfo.remarks.remarksNumDetail[2]}})</span>
-                  <span>差评({{goodsInfo.remarks.remarksNumDetail[3]}})</span>
-                </div>
-                <div class="remarks-box" v-for="(item,index) in goodsInfo.remarks.detail" :key="index">
-                  <div class="remarks-user">
-                    <Avatar icon="person" />
-                    <span class="remarks-user-name">{{item.username}}</span>
-                  </div>
-                  <div class="remarks-content-box">
-                    <p>
-                      <Rate disabled :value="item.values" allow-half class="remarks-star"></Rate>
-                    </p>
-                    <p class="remarks-content">{{item.content}}</p>
-                    <p class="remarks-sub">
-                      <span class="remarks-item">{{item.goods}}</span>
-                      <span class="remarks-time">{{item.time}}</span>
-                    </p>
-                  </div>
-                </div>
-                <div class="remarks-page">
-                  <Page :total="40" size="small" show-elevator show-sizer></Page>
+                <div v-for="item in goodsInfo.sellerCommentList">
+                  <el-row :gutter="20" style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
+                    <el-col :span="2">
+                      <div class="commit-img" >
+                        <img src="static/img/commit.jpeg">
+                      </div>
+                      <div class="comment-name" style="margin-top: -10px">
+                        <span style="text-align: center;display: block;">{{item.name}}</span>
+                      </div>
+                    </el-col>
+                    <el-col :span="12">
+                      <span>商品名称：{{item.cname}}</span>
+                      <el-divider></el-divider>
+                      <span>质量：{{item.quality}}</span> &nbsp;&nbsp;
+                      <span>物流速度：{{item.speed}}</span> &nbsp;&nbsp;
+                      <span>卖家态度：{{item.attitude}}</span> &nbsp;&nbsp;
+                      <span>评论时间：{{item.time}}</span>
+                    </el-col>
+                  </el-row>
                 </div>
               </div>
             </TabPane>
@@ -101,18 +102,22 @@ export default {
   name: 'ShowGoodsDetail',
   data () {
     return {
-      tagsColor: [ 'blue', 'green', 'red', 'yellow' ]
+      tagsColor: [ 'blue', 'green', 'red', 'yellow' ],
+      historyCommodity: []
     };
   },
   computed: {
     ...mapState(['goodsInfo'])
   },
+  created () {},
   methods: {
     changeHeight () {
       let heightCss = window.getComputedStyle(this.$refs.itemIntroGoods).height;
-      console.log(heightCss);
       heightCss = parseInt(heightCss.substr(0, heightCss.length - 2)) + 89;
       this.$refs.itemIntroDetail.style.height = heightCss + 'px';
+    },
+    seeNewCommodity (cid) {
+      window.open('GoodsDetail?cid=' + cid, '_blank');
     }
   },
   updated () {
@@ -259,68 +264,20 @@ export default {
   line-height: 36px;
   color: #666666;
   background-color: #F7F7F7;
+  margin-bottom: 10px;
 }
-.remarks-analyse-box {
-  padding: 15px;
-  display: flex;
-  align-items: center;
+.commit-img {
+  margin-bottom: 15px;
+  width: 100%;
+  height: 100%;
+  border-radius: 48px;
+  overflow: hidden;
 }
-.remarks-analyse-goods {
-  margin-left: 15px;
-  margin-right: 15px;
+.commit-img img{
+  width: 100%;
 }
-.remarks-analyse-num {
-  font-size: 26px;
-}
-.remarks-analyse-title {
-  font-size: 12px;
-  line-height: 20px;
-}
-.remarks-bar {
-  padding-left: 15px;
-  height: 36px;
-  line-height: 36px;
-  color: #666666;
-  background-color: #F7F7F7;
-}
-.remarks-bar span {
-  margin-right: 15px;
-}
-.remarks-box {
-  padding: 15px;
-  display: flex;
-  flex-direction: row;
-  border-bottom: 1px #ccc dotted;
-}
-.remarks-user {
-  width: 180px;
-}
-.remarks-user-name {
-  padding-left: 15px;
-}
-.remarks-content-box {
-  width: calc(100% - 180px);
-}
-.remarks-star {
-  background-color: #fff;
-}
-.remarks-content {
-  font-size: 14px;
-  color: #232323;
-  line-height: 28px;
-}
-.remarks-sub {
-  margin-top: 15px;
-  color: #ccc;
-}
-.remarks-time {
-  margin-left: 15px;
-}
-.remarks-page {
-  margin: 15px;
-  display: flex;
-  justify-content:flex-end;
-}
+
+
 /***************商品详情介绍和推荐侧边栏结束***************/
 </style>
 

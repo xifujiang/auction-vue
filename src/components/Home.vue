@@ -7,11 +7,19 @@
             <div class="user-img">
               <img src="static/img/head.png">
             </div>
-            <p>Gavin</p>
+            <p>{{userInfo.name}}</p>
           </div>
+          <Submenu name="0">
+            <template slot="title">
+              <Icon type="address"></Icon>
+              <span>会员等级</span>
+            </template>
+            <MenuItem name="myMember">我的会员</MenuItem>
+            <MenuItem name="memberUpgrade">升级会员</MenuItem>
+          </Submenu>
           <Submenu name="1">
             <template slot="title">
-                <Icon type="location"></Icon>
+                <Icon type="address"></Icon>
                 <span>收货地址</span>
             </template>
             <MenuItem name="myAddress">我的收货地址</MenuItem>
@@ -19,17 +27,25 @@
           </Submenu>
           <Submenu name="2">
             <template slot="title">
-                <Icon type="clipboard"></Icon>
+                <Icon type="order"></Icon>
                 <span>购物订单</span>
             </template>
             <MenuItem name="myOrder">我的订单</MenuItem>
           </Submenu>
           <Submenu name="3">
             <template slot="title">
-                <Icon type="ios-cart"></Icon>
-                <span>购物车</span>
+              <Icon type="up-shop"></Icon>
+              <span>发布商品</span>
             </template>
-            <MenuItem name="myShoppingCart">我的购物车</MenuItem>
+            <MenuItem name="myShoppingCart">我的商品</MenuItem>
+            <MenuItem name="uploadShopCart">发布商品</MenuItem>
+          </Submenu>
+          <Submenu name="4">
+            <template slot="title">
+                <Icon type="my-bid"></Icon>
+                <span>竞拍</span>
+            </template>
+            <MenuItem name="myBidingCart">我的竞拍</MenuItem>
           </Submenu>
         </Menu>
       </Sider>
@@ -42,32 +58,42 @@
             <router-view></router-view>
           </transition>
         </Content>
-        <Footer class="layout-footer-center">2018 &copy; Gavin</Footer>
+        <Footer class="layout-footer-center">2019 &copy; xifujiang</Footer>
       </Layout>
     </Layout>
   </div>
 </template>
 
 <script>
+import store from '@/vuex/store';
+import { mapState } from 'vuex';
 export default {
   name: 'Home',
   data () {
     return {
       activeTitle: '我的订单',
       bar: {
+        'myMember': '我的会员',
+        'memberUpgrade': '升级会员',
         'myAddress': '我的收货地址',
         'addAddress': '添加收货地址',
         'myOrder': '我的订单',
-        'myShoppingCart': '我的购物车'
+        'myShoppingCart': '我的商品',
+        'uploadShopCart': '发布商品',
+        'myBidingCart': '我的竞拍'
       }
     };
+  },
+  computed: {
+    ...mapState(['userInfo', 'shoppingCart'])
   },
   methods: {
     onSelect (name) {
       this.activeTitle = this.bar[name];
       this.$router.push(`/home/${name}`);
     }
-  }
+  },
+  store
 };
 </script>
 

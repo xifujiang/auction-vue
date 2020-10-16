@@ -1,5 +1,5 @@
 /*
- * @Author: Gavin
+ *
  * @Date: 2018-06-11 11:27:10
  * @Last Modified by: Gavin
  * @Last Modified time: 2018-06-11 12:23:40
@@ -7,12 +7,12 @@
  */
 <template>
   <div class="item-class-show">
-    <Row class="item-class-group" v-for="(items, index) in tagsInfo" :key="index">
-      <i-col class="item-class-name" span="3">{{ items.tagName }} : </i-col>
-      <i-col class="item-class-select" span="21">
-        <span v-for="(item, subIndex) in items.tags" :key="subIndex">{{ item }}</span>
-      </i-col>
-    </Row>
+    <!--<Row class="item-class-group" v-for="(items, index) in tagsInfo" :key="index">-->
+      <!--<i-col class="item-class-name" span="3">{{ items.tagName }} : </i-col>-->
+      <!--<i-col class="item-class-select" span="21">-->
+        <!--<span v-for="(item, subIndex) in items.tags" :key="subIndex">{{ item }}</span>-->
+      <!--</i-col>-->
+    <!--</Row>-->
   </div>
 </template>
 

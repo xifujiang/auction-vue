@@ -18,13 +18,13 @@
         </li>
       </ul>
       <ul class="detail">
-        <li class="first" v-show="!userInfo.username">
+        <li class="first" v-show="!userInfo.name">
           你好，请<router-link to="/login">登录 <Icon type="person"></Icon></router-link> |<span class="text-color-red"><router-link to="/SignUp">免费注册 <Icon type="person-add"></Icon></router-link></span>
         </li>
-        <li v-show="!!userInfo.username">
+        <li v-show="!!userInfo.name">
           <Dropdown>
-            <p class="username-p">
-              <Avatar class="person-icon" icon="person" size="small" /> <span class="username">{{userInfo.username}} </span>
+            <p class="name-p">
+              <Avatar class="person-icon" icon="person" size="small" /> <span class="name">{{userInfo.name}} </span>
             </p>
             <DropdownMenu slot="list">
                 <div class="my-page">
@@ -52,32 +52,32 @@
                 <span>赶快去添加商品吧~</span>
               </div>
               <div class="shopping-cart-list" v-show="shoppingCart.length > 0">
-                <div class="shopping-cart-box" v-for="(item,index) in shoppingCart" :key="index">
-                  <div class="shopping-cart-img">
-                    <img :src="item.img">
-                  </div>
-                  <div class="shopping-cart-info">
-                    <div class="shopping-cart-title">
-                      <p>{{item.title.substring(0, 22)}}...</p>
-                    </div>
-                    <div class="shopping-cart-detail">
-                      <p>
-                        套餐:
-                        <span class="shopping-cart-text">
-                          {{item.package}}
-                        </span>
-                        数量:
-                        <span class="shopping-cart-text">
-                          {{item.count}}
-                        </span>
-                        价钱:
-                        <span class="shopping-cart-text">
-                          {{item.price}}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                <!--<div class="shopping-cart-box" v-for="(item,index) in shoppingCart" :key="index">-->
+                  <!--<div class="shopping-cart-img">-->
+                    <!--<img :src="item.img">-->
+                  <!--</div>-->
+                  <!--<div class="shopping-cart-info">-->
+                    <!--<div class="shopping-cart-title">-->
+                      <!--<p>{{item.title.substring(0, 22)}}...</p>-->
+                    <!--</div>-->
+                    <!--<div class="shopping-cart-detail">-->
+                      <!--<p>-->
+                        <!--套餐:-->
+                        <!--<span class="shopping-cart-text">-->
+                          <!--{{item.package}}-->
+                        <!--</span>-->
+                        <!--数量:-->
+                        <!--<span class="shopping-cart-text">-->
+                          <!--{{item.count}}-->
+                        <!--</span>-->
+                        <!--价钱:-->
+                        <!--<span class="shopping-cart-text">-->
+                          <!--{{item.price}}-->
+                        <!--</span>-->
+                      <!--</p>-->
+                    <!--</div>-->
+                  <!--</div>-->
+                <!--</div>-->
                 <div class="go-to-buy">
                   <Button type="error" size="small" @click="goToPay">
                     去结账
@@ -99,7 +99,7 @@
 import store from '@/vuex/store';
 import { mapState, mapActions } from 'vuex';
 export default {
-  name: 'M-Header',
+  name: 'Header',
   created () {
     this.isLogin();
   },
@@ -126,11 +126,18 @@ export default {
       this.$router.push('/order');
     },
     myInfo () {
-      this.$router.push('/home');
+      let localStorage = window.localStorage;
+      let loginInfo = localStorage.getItem('loginInfo');
+      if (loginInfo == null) {
+        this.$Message.error('账号过期，请重新登录');
+        this.$router.push('/login');
+      } else {
+        this.$router.push('/home');
+      }
     },
     signOutFun () {
       this.signOut();
-      this.$router.push('/');
+      // this.$router.go(0);
     }
   },
   store
@@ -201,7 +208,7 @@ export default {
   color: #d9534f;
   background-color:  #f0cdb2;
 }
-.username {
+.name {
   color: #999999;
 }
 .shopping-cart-list {
@@ -264,7 +271,7 @@ export default {
   font-size: 12px;
   line-height: 16px;
 }
-.username-p {
+.name-p {
   cursor: pointer;
 }
 .my-page {

@@ -7,13 +7,13 @@
       <div class="add-box">
         <Form :model="formData" label-position="left" :label-width="100" :rules="ruleInline">
           <FormItem label="收件人" prop="name">
-            <i-input v-model="formData.name" size="large"></i-input>
+            <i-input v-model="formData.addressee" size="large"></i-input>
           </FormItem>
           <FormItem label="收件地区" prop="address">
-            <Distpicker :province="formData.province" :city="formData.city" :area="formData.area" @province="getProvince" @city="getCity" @area="getArea"></Distpicker>
+            <Distpicker @selected="sel"></Distpicker>
           </FormItem>
-          <FormItem label="收件地址" prop="address">
-            <i-input v-model="formData.address" size="large"></i-input>
+          <FormItem label="收件地址" prop="detail">
+            <i-input v-model="formData.detail" size="large"></i-input>
           </FormItem>
           <FormItem label="手机号码" prop="phone">
             <i-input v-model="formData.phone" size="large"></i-input>
@@ -24,7 +24,7 @@
         </Form>
       </div>
       <div class="add-submit">
-        <Button type="primary">添加地址</Button>
+        <Button type="primary" @click="addAddress()">添加地址</Button>
       </div>
     </div>
   </div>
@@ -37,19 +37,19 @@ export default {
   data () {
     return {
       formData: {
-        name: '',
-        address: '',
+        addressee: '',
+        detail: '',
         phone: '',
         postalcode: '',
         province: '广东省',
         city: '广州市',
-        area: '天河区'
+        part: '天河区'
       },
       ruleInline: {
-        name: [
+        addressee: [
           { required: true, message: '请输入姓名', trigger: 'blur' }
         ],
-        address: [
+        detail: [
           { required: true, message: '请输入地址', trigger: 'blur' }
         ],
         postalcode: [
@@ -64,13 +64,49 @@ export default {
   },
   methods: {
     getProvince (data) {
-      this.formData.province = data.value;
+      this.formData.province = data;
     },
     getCity (data) {
-      this.formData.city = data.value;
+      this.formData.city = data;
     },
-    getArea (data) {
-      this.formData.area = data.value;
+    getPart (data) {
+      this.formData.part = data;
+    },
+    addAddress () {
+      const address = {
+        addressee: this.formData.addressee,
+        province: this.formData.province,
+        city: this.formData.city,
+        part: this.formData.part,
+        detail: this.formData.detail,
+        phone: this.formData.phone,
+        postalcode: this.formData.postalcode
+      };
+      let localStorage = window.localStorage;
+      let loginInfo = localStorage.getItem('loginInfo');
+      let uid = (JSON.parse(loginInfo))['uid'];
+      this.$axios({
+        url: '/addAddress',
+        method: 'post',
+        params: {
+          userid: uid
+        },
+        data: address
+      }).then(successResponse => {
+        if (successResponse.data.code === 200) {
+          this.$Message.success('添加地址成功');
+          this.$router.push({ path: '/home/addAddress' });
+        } else if (successResponse.data.code === 400) {
+          this.$Message.error('添加地址失败，原因400');
+        }
+      })
+        .catch(failResponse => {
+        });
+    },
+    sel (data) {
+      this.formData.province = data.province.value;
+      this.formData.city = data.city.value;
+      this.formData.part = data.area.value;
     }
   },
   components: {

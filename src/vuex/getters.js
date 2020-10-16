@@ -12,6 +12,11 @@ export const orderGoodsList = state => {
   return state.goodsList.sort(compare(state.orderBy));
 };
 
+// 获取秒杀的天数
+export const seckillsDay = state => {
+  return state.seckills.deadline.day < 10 ? '0' + state.seckills.deadline.day : state.seckills.deadline.day;
+};
+
 // 获取秒杀的小时
 export const seckillsHours = state => {
   return state.seckills.deadline.hours < 10 ? '0' + state.seckills.deadline.hours : state.seckills.deadline.hours;

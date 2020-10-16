@@ -14,12 +14,25 @@ export default {
   name: 'App',
   data () {
     return {
+      isRouterAlive: true,
       excludeRoutes: ['HomeIndex', 'MyAddress', 'AddAddress', 'MyOrder', 'MyShoppingCart']
     };
   },
+  provide: function () {
+    return {
+      reload: this.reload
+    };
+  },
+  methods: {
+    reload: function () {
+      this.isRouterAlive = false;
+      this.$nextTick(function () {
+        this.isRouterAlive = true;
+      });
+    }
+  },
   components: {
-    Header,
-    Footer
+    Header,Footer
   }
 };
 </script>

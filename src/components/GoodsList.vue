@@ -24,7 +24,7 @@
           </div>
           <div class="item-as" v-for="(item,index) in asItems" :key="index">
             <div class="item-as-img">
-              <img :src="item.img" alt="">
+              <img :src="item.image" alt="">
             </div>
             <div class="item-as-price">
               <span>
@@ -36,7 +36,7 @@
               <span>{{item.intro}}</span>
             </div>
             <div class="item-as-selled">
-              已有<span>{{item.num}}</span>人评价
+              卖家信用<span>{{item.score}}</span>
             </div>
           </div>
         </div>
@@ -47,31 +47,48 @@
             </ul>
           </div>
           <div class="goods-list">
-            <div class="goods-show-info" v-for="(item, index) in orderGoodsList" :key="index">
+            <!--<div class="goods-show-info" v-for="(item, index) in orderGoodsList" :key="index">-->
+            <div class="goods-show-info" v-for="(item, index) in goodsData" :key="index">
               <div class="goods-show-img">
-                <router-link to="/goodsDetail"><img :src="item.img"/></router-link>
+                <router-link :to="'/GoodsDetail?cid='.concat(item.cid)">
+                  <img :src="item.image" height="220px" width="220px"/>
+                </router-link>
               </div>
               <div class="goods-show-price">
                 <span>
-                  <Icon type="social-yen text-danger"></Icon>
-                  <span class="seckill-price text-danger">{{item.price}}</span>
+                  当前价格&nbsp;<Icon type="social-yen text-danger"></Icon>
+                  <span class="seckill-price text-danger">{{item.nowprice}}</span>
+                </span>
+              </div>
+              <div class="goods-show-price">
+                <span>
+                  每次加价&nbsp;<Icon type="social-yen text-danger"></Icon>
+                  <span class="seckill-price text-danger">{{item.addprice}}</span>
+                </span>
+              </div>
+              <div class="goods-show-statu">
+                 <span v-if="item.statu === '待付款' || item.statu === '已发货' || item.statu === '已收货'">
+                  商品状态：<span class=" ">交易中</span>
+                </span>
+                <span v-else>
+                  商品状态：<span class=" ">{{item.statu}}</span>
                 </span>
               </div>
               <div class="goods-show-detail">
                 <span>{{item.intro}}</span>
               </div>
               <div class="goods-show-num">
-                已有<span>{{item.remarks}}</span>人评价
+                卖家信用&nbsp;<span>{{item.score}}</span>
               </div>
               <div class="goods-show-seller">
-                <span>{{item.shopName}}</span>
+                <span>{{item.userName}}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="goods-page">
-        <Page :total="100" show-sizer></Page>
+        <Page :total="dataCount" :page-size="pageSize" show-total @on-change="changepage" @on-page-size-change="changepagesize"></Page>
       </div>
     </div>
     <Spin size="large" fix v-if="isLoading"></Spin>
@@ -96,33 +113,82 @@ export default {
       isAction: [ true, false, false ],
       icon: [ 'arrow-up-a', 'arrow-down-a', 'arrow-down-a' ],
       goodsTool: [
-        {title: '综合', en: 'sale'},
-        {title: '评论数', en: 'remarks'},
-        {title: '价格', en: 'price'}
-      ]
+        {title: '价格', en: 'price'},
+        {title: '卖家信用', en: 'score'}
+      ],
+      ajaxHistoryData:[],
+      // 初始化信息总条数
+      dataCount:0,
+      // 每页显示多少条
+      pageSize:15,
+      goodsData:[],
+      orderGoodsList:[]
     };
   },
   computed: {
     ...mapState(['asItems', 'isLoading']),
-    ...mapGetters(['orderGoodsList'])
+    // ...mapGetters(['orderGoodsList'])
   },
   methods: {
-    ...mapActions(['loadGoodsList']),
+    ...mapActions(['loadAsItemsList']),
     ...mapMutations(['SET_GOODS_ORDER_BY']),
     orderBy (data, index) {
-      console.log(data);
       this.icon = [ 'arrow-down-a', 'arrow-down-a', 'arrow-down-a' ];
       this.isAction = [ false, false, false ];
       this.isAction[index] = true;
       this.icon[index] = 'arrow-up-a';
       this.SET_GOODS_ORDER_BY(data);
+    },
+    handleListApproveHistory(){
+      // 保存取到的所有数据
+      console.log("1111"+this.orderGoodsList);
+      this.ajaxHistoryData = this.orderGoodsList;
+      this.dataCount = this.orderGoodsList.length;
+      // 初始化显示，小于每页显示条数，全显，大于每页显示条数，取前每页条数显示
+      if(this.orderGoodsList.length < this.pageSize){
+        this.goodsData = this.ajaxHistoryData;
+      }else{
+        this.goodsData = this.ajaxHistoryData.slice(0,this.pageSize);
+      }
+    },
+    changepage(index){
+      var _start = ( index - 1 ) * this.pageSize;
+      var _end = index * this.pageSize;
+      this.goodsData = this.ajaxHistoryData.slice(_start,_end);
+    },
+    changepagesize(pageSize){
+      this.pageSize = pageSize;
+      this.handleListApproveHistory()
+    },
+    loadGoodsList(ctype) {
+      this.$axios({
+        url: 'getGoodsList',
+        methods: 'get',
+        params: {
+          ctype: ctype
+        }
+      }).then(successResponse => {
+        if (successResponse.data.code === 200) {
+          this.orderGoodsList = successResponse.data.data;
+          console.log("2222"+this.orderGoodsList);
+        } else if (successResponse.data.code === 400) {
+          this.$Message.error('显示列表失败，原因400');
+        }
+      }).then(
+        val => {
+          this.handleListApproveHistory();
+          return Promise.resolve(/* 这里是需要返回的数据*/);
+        });
     }
   },
   created () {
-    this.loadGoodsList();
+    this.loadAsItemsList();
+
   },
   mounted () {
     this.searchItem = this.$route.query.sreachData;
+    this.loadGoodsList(this.$route.query.ctype);
+
   },
   components: {
     Search,

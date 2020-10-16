@@ -10,31 +10,6 @@
       </Alert>
       <Table border ref="selection" :columns="columns" :data="myOrder" size="large" @on-selection-change="select" no-data-text="您的购物车没有商品，请先添加商品到购物车再点击购买">
       </Table>
-       <div class="address-container">
-        <h3>收货人信息</h3>
-        <div class="address-box">
-          <div class="address-check">
-            <div class="address-check-name">
-              <span><Icon type="ios-checkmark-outline"></Icon> {{checkAddress.name}}</span>
-            </div>
-            <div class="address-detail">
-              <p>{{checkAddress.address}}</p>
-            </div>
-          </div>
-          <Collapse>
-            <Panel>
-                选择地址 &nbsp;&nbsp;&nbsp;<router-link :to="{path:'/home/AddAddress'}" target="_blank">点击添加地址</router-link>
-                <p slot="content">
-                  <RadioGroup vertical size="large" @on-change="changeAddress">
-                    <Radio :label="item.addid" v-for="(item, index) in address" :key="index">
-                      <span>{{item.addressee}} {{item.province}} {{item.city}} {{item.part}} {{item.detail}} {{item.phone}} {{item.postalcode}}</span>
-                    </Radio>
-                  </RadioGroup>
-                </p>
-            </Panel>
-          </Collapse>
-        </div>
-      </div>
       <div class="remarks-container">
         <h3>备注</h3>
         <i-input v-model="remarks" size="large" placeholder="在这里填写备注信息" class="remarks-input"></i-input>
@@ -47,16 +22,16 @@
         <div class="pay-box">
           <p><span>提交订单应付总额：</span> <span class="money"><Icon type="social-yen"></Icon> {{totalPrice.toFixed(2)}}</span></p>
           <span>选择支付方式：
-              <el-radio v-model="radio" label="1">钱包支付</el-radio>
-              <el-radio v-model="radio" label="2">支付宝支付</el-radio>
-            </span>
+            <el-radio v-model="radio" label="1">钱包支付</el-radio>
+            <el-radio v-model="radio" label="2">支付宝支付</el-radio>
+          </span>
           <div class="pay-btn">
             <Button type="error" size="large" @click="tradePay()">支付订单</Button>
           </div>
         </div>
       </div>
     </div>
-    <!--钱包支付-->
+    <!--钱包支付升级会员-->
     <Modal v-model="modal" width="400">
       <p slot="header">
         <span>钱包支付</span>
@@ -83,44 +58,23 @@
 import Search from '@/components/Search';
 import GoodsListNav from '@/components/nav/GoodsListNav';
 import store from '@/vuex/store';
-import { mapState, mapActions } from 'vuex';
-import crypto from 'crypto';
-
+import { mapState } from 'vuex';
 export default {
-  name: 'Order',
+  name: 'MemberOrder',
   beforeRouteEnter (to, from, next) {
     window.scrollTo(0, 0);
     next();
   },
   created () {
     this.getUid();
-    this.loadAddress();
     this.addOrder();
   },
   data () {
     return {
-      // goodsCheckList: [],
       columns: [
         {
           type: 'selection',
           width: 58,
-          align: 'center'
-        },
-        {
-          title: '图片',
-          key: 'image',
-          width: 100,
-          render: (h, params) => {
-            return h('div', [
-              h('img', {
-                attrs: {
-                  src: params.row.image,
-                  width: 60,
-                  height: 60
-                }
-              })
-            ]);
-          },
           align: 'center'
         },
         {
@@ -141,35 +95,30 @@ export default {
           align: 'center'
         }
       ],
-      checkAddress: {
-        name: '未选择',
-        address: '请选择地址'
-      },
+      flag: false,
       remarks: '',
       htmls: '',
       myOrder: [],
-      addressStruts: 0,
-      addressid: '',
+      uid: '',
       memberid: 0,
-      record: 2, // 用于记录下单类型，会放在订单前面做标记 （下单支付）
+      record: 3, // 用于记录下单类型，会放在订单前面做标记 （升级会员）
       totalPrice: 0,
       radio: '1',
       modal: false,
-      uid: '',
-      userPackageTb: ''
+      userPackageTb: {}
     };
   },
   computed: {
-    ...mapState(['address', 'shoppingCart'])
+    ...mapState(['shoppingCart'])
   },
+  inject: ['reload'],
   methods: {
-    ...mapActions(['loadAddress']),
     select (selection, row) {
       console.log(selection);
       var price = 0;
       selection.forEach(item => {
         price += item.price;
-      })
+      });
       this.totalPrice = price;
       this.reload();
     },
@@ -192,6 +141,19 @@ export default {
         price: price
       }];
       this.myOrder = data;
+      // this.totalPrice = price;
+    },
+    getOrderInfo () {
+      var orderInfo = {
+        tradeNo: this.record + '' + this.$route.query.memberid + '' + this.randomNumber(), // 商户订单号(记录号+memberid+随机号)
+        uid: this.uid,
+        subject: this.$route.query.cname, // 订单名称
+        totalPrice: this.totalPrice.toFixed(2), // 付款金额
+        nature: this.myOrder[0].nature, // 商品描述
+        remarks: this.remarks,
+        memberid: this.$route.query.memberid
+      };
+      return orderInfo;
     },
     openModal () {
       this.$axios({
@@ -207,42 +169,14 @@ export default {
         }
       });
     },
-    changeAddress (data) {
-      const father = this;
-      this.address.forEach(item => {
-        if (item.addid === data) {
-          father.checkAddress.name = item.name;
-          father.checkAddress.address = `${item.addressee} ${item.province} ${item.city} ${item.part} ${item.detail} ${item.phone} ${item.postalcode}`;
-          this.addressid = item.addid;
-        }
-      });
-      this.addressStruts = 1;
-    },
-    getOrderInfo () {
-      var orderInfo = {
-        tradeNo: this.$route.query.oid, // 商户订单号
-        cid: this.myOrder[0].cid,
-        uid: this.uid,
-        subject: this.$route.query.cname, // 订单名称
-        totalPrice: this.totalPrice.toFixed(2), // 付款金额
-        nature: this.myOrder[0].nature, // 商品描述
-        remarks: this.remarks,
-        addressid: this.addressid
-      };
-      return orderInfo;
-    },
     tradePay () { // 竞购 01
       if (this.totalPrice === 0) {
         alert('您未选择商品');
         return;
       }
-      if (this.addressStruts === 0) {
-        alert('您未选择地址,请选择地址');
-        return;
-      }
       if (this.radio === '1') {
-        // 钱包支付
         this.openModal();
+        // 钱包支付
       } else if (this.radio === '2') {
         this.alipay();
       }
@@ -272,6 +206,7 @@ export default {
       md5.update(this.passwd);
       if (md5.digest('hex') === this.userPackageTb.passwd) {
         var orderInfo = this.getOrderInfo();
+        // console.log(md5.digest('hex'));
         this.$axios({
           url: '/changePackageMoney',
           method: 'post',
@@ -306,7 +241,6 @@ export default {
       minutes = this.setTimeDateFmt(minutes);
       seconds = this.setTimeDateFmt(seconds);
       let orderCode = now.getFullYear().toString() + month.toString() + day + hour + minutes + seconds + (Math.round(Math.random() * 1000000)).toString();
-      console.log(orderCode);
       return orderCode;
     }
   },
@@ -325,41 +259,6 @@ export default {
 }
 .tips-box {
   margin-bottom: 15px;
-}
-.address-container {
-  margin-top: 15px;
-}
-.address-box {
-  margin-top: 15px;
-  padding: 15px;
-  border: 1px #ccc dotted;
-}
-.address-check {
-  margin: 15px 0px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-}
-.address-check-name {
-  width: 120px;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  background-color: #ccc;
-}
-.address-check-name span {
-  width: 120px;
-  height: 36px;
-  font-size: 14px;
-  line-height: 36px;
-  text-align: center;
-  color: #fff;
-  background-color: #f90013;
-}
-.address-detail {
-  padding-left: 15px;
-  font-size: 14px;
-  color: #999999;
 }
 .remarks-container {
   margin: 15px 0px;

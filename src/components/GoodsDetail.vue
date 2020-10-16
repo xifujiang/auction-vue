@@ -2,13 +2,16 @@
   <div>
     <Search></Search>
     <ShopHeader></ShopHeader>
-    <GoodsDetailNav></GoodsDetailNav>
+    <!--<GoodsDetailNav></GoodsDetailNav>-->
     <div class="shop-item-path">
       <div class="shop-nav-container">
         <Breadcrumb>
           <BreadcrumbItem to="/">首页</BreadcrumbItem>
-          <BreadcrumbItem to="/goodsList">手机壳</BreadcrumbItem>
-          <BreadcrumbItem>手机保护套</BreadcrumbItem>
+          <BreadcrumbItem v-for="(item,index) in goodsInfo.typeid" :key="index">
+          <router-link :to="'/goodsList?ctype='.concat(item)">
+            {{item}}
+          </router-link>
+          </BreadcrumbItem>
         </Breadcrumb>
       </div>
     </div>
@@ -35,7 +38,7 @@ export default {
     next();
   },
   created () {
-    this.loadGoodsInfo();
+    this.loadGoodsInfo(this.$route.query.cid);
   },
   data () {
     return {

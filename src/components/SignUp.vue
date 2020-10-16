@@ -8,7 +8,7 @@
         <div class="sign-up-title">
           <h1>欢迎注册账号</h1>
           <br>
-          <h2>BIT MALL, 天天低价品质保证, 让消费者钱更值钱</h2>
+          <h2>Auc竞拍平台,给您提供最优质的竞拍体验。</h2>
         </div>
         <div class="sing-up-step-box">
           <Steps :current="signUpStep">

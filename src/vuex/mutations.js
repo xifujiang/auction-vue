@@ -26,13 +26,13 @@ export const SET_CAROUSELITEMS_INFO = (state, { carouselItems, activity }) => {
 };
 
 // 设置电脑专栏数据
-export const SET_COMPUTER_INFO = (state, computer) => {
-  state.computer = computer;
+export const SET_HOT_INFO = (state, hot) => {
+  state.hot = hot;
 };
 
 // 设置爱吃专栏数据
-export const SET_EAT_INFO = (state, eat) => {
-  state.eat = eat;
+export const SET_FAVORITE_INFO = (state, favorite) => {
+  state.favorite = favorite;
 };
 
 // 减少秒杀时间
@@ -50,7 +50,7 @@ export const REDUCE_SECKILLS_TIME = state => {
 
 // 设置商品列表(搜索)
 export const SET_GOODS_LIST = (state, data) => {
-  state.goodsList = data.goodsList;
+  // state.goodsList = data.goodsList;
   state.asItems = data.asItems;
 };
 
@@ -64,15 +64,18 @@ export const SET_GOODS_INFO = (state, data) => {
   state.goodsInfo = data;
 };
 
+// export const SET_Time_INFO = (state, data) => {
+//   state.time = data;
+// };
+
 // 添加购物车
 export const ADD_SHOPPING_CART = (state, data) => {
   const item = {
-    goods_id: data.goods_id,
-    count: data.count,
-    img: data.package.img,
-    package: data.package.intro,
-    price: data.package.price,
-    title: data.title
+    cid: data.cid,
+    image: data.image,
+    cname: data.cname,
+    nature: data.nature,
+    price: data.price
   };
   state.shoppingCart.push(item);
   state.newShoppingCart = data;

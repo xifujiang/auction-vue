@@ -3,79 +3,18 @@
     <div class="nav-item">
       <ul>
         <li v-for="(item,index) in nav" :key="index">
-          <a href="#">{{item}}</a>
+          <router-link :to="'/GoodsList?ctype='.concat(item.name)">{{item.name}}</router-link>
         </li>
       </ul>
     </div>
     <div class="nav-body">
-      <!-- 侧边导航 -->
+      <!-- 侧边&导航 -->
       <div class="nav-side" ref="navSide">
         <ul>
-          <li @mouseenter="showDetail(1)" @mouseleave="hideDetail(1)">
-            <span class="nav-side-item">家用电器</span>
-          </li>
-          <li @mouseenter="showDetail(2)" @mouseleave="hideDetail(2)">
-            <span class="nav-side-item">手机</span> /
-            <span class="nav-side-item">运营商</span> /
-            <span class="nav-side-item">数码</span>
-          </li>
-          <li @mouseenter="showDetail(1)" @mouseleave="hideDetail(1)">
-            <span class="nav-side-item">电脑</span> /
-            <span class="nav-side-item">办公</span>
-          </li>
-          <li @mouseenter="showDetail(2)" @mouseleave="hideDetail(2)">
-            <span class="nav-side-item">家居</span> /
-            <span class="nav-side-item">家具</span> /
-            <span class="nav-side-item">家装</span> /
-            <span class="nav-side-item">厨具</span>
-          </li>
-          <li @mouseenter="showDetail(1)" @mouseleave="hideDetail(1)">
-            <span class="nav-side-item">男装</span> /
-            <span class="nav-side-item">女装</span> /
-            <span class="nav-side-item">童装</span> /
-            <span class="nav-side-item">内衣</span>
-          </li>
-          <li @mouseenter="showDetail(2)" @mouseleave="hideDetail(2)">
-            <span class="nav-side-item">美妆个护</span> /
-            <span class="nav-side-item">宠物</span>
-          </li>
-          <li @mouseenter="showDetail(1)" @mouseleave="hideDetail(1)">
-            <span class="nav-side-item">女鞋</span> /
-            <span class="nav-side-item">箱包</span> /
-            <span class="nav-side-item">钟表</span> /
-            <span class="nav-side-item">珠宝</span>
-          </li>
-          <li @mouseenter="showDetail(2)" @mouseleave="hideDetail(2)">
-            <span class="nav-side-item">男鞋</span> /
-            <span class="nav-side-item">运动</span> /
-            <span class="nav-side-item">户外</span>
-          </li>
-          <li @mouseenter="showDetail(1)" @mouseleave="hideDetail(1)">
-            <span class="nav-side-item">汽车</span> /
-            <span class="nav-side-item">汽车用品</span>
-          </li>
-          <li @mouseenter="showDetail(2)" @mouseleave="hideDetail(2)">
-            <span class="nav-side-item">母婴</span> /
-            <span class="nav-side-item">玩具乐器</span>
-          </li>
-          <li @mouseenter="showDetail(1)" @mouseleave="hideDetail(1)">
-            <span class="nav-side-item">食品</span> /
-            <span class="nav-side-item">酒类</span> /
-            <span class="nav-side-item">生鲜</span> /
-            <span class="nav-side-item">特产</span>
-          </li>
-          <li @mouseenter="showDetail(2)" @mouseleave="hideDetail(2)">
-            <span class="nav-side-item">礼品鲜花</span> /
-            <span class="nav-side-item">农资绿植</span>
-          </li>
-          <li @mouseenter="showDetail(1)" @mouseleave="hideDetail(1)">
-            <span class="nav-side-item">医药保健</span> /
-            <span class="nav-side-item">计生情趣</span>
-          </li>
-          <li @mouseenter="showDetail(2)" @mouseleave="hideDetail(2)">
-            <span class="nav-side-item">图书</span> /
-            <span class="nav-side-item">音像</span> /
-            <span class="nav-side-item">电子书</span>
+          <li v-for="(item,index) in nav" :key="index" @mouseenter="changeCurrent(item.typeid);showDetail(1)" @mouseleave="hideDetail(2);">
+            <router-link :to="'/GoodsList?ctype='.concat(item.name)">
+              <span class="nav-side-item">{{item.name}}<em class="rt"> ></em></span>
+            </router-link>
           </li>
         </ul>
       </div>
@@ -100,33 +39,15 @@
       </div>
     </div>
     <transition name="fade">
-      <div class="detail-item-panel panel-1" :duration="{ enter: 100, leave: 100 }" v-show="panel1" @mouseenter="showDetail(1)" ref="itemPanel1" @mouseleave="hideDetail(1)">
-        <div class="nav-detail-item">
-          <span v-for="(item, index) in panelData1.navTags" :key="index">{{item}} > </span>
-        </div>
+      <div class="detail-item-panel panel-1" :duration="{ enter: 100, leave: 100 }" v-show="panel1" @mouseenter="showDetail(2)" ref="itemPanel1" @mouseleave="hideDetail(1)">
         <ul>
-          <li v-for="(items, index) in panelData1.classNav" :key="index" class="detail-item-row">
-            <span class="detail-item-title">{{items.title}}
+          <li v-for="(items, index) in commodityType.twoNav" :key="index" class="detail-item-row">
+            <router-link :to="'/GoodsList?ctype='.concat(items.name_2)">
+            <span class="detail-item-title">{{items.name_2}}
               <span class="glyphicon glyphicon-menu-right"></span>
             </span>
-            <router-link to="/goodsList" v-for="(item, subIndex) in items.tags" :key="subIndex">
-              <span class="detail-item">{{item}}</span>
             </router-link>
-          </li>
-        </ul>
-      </div>
-    </transition>
-    <transition name="fade">
-      <div class="detail-item-panel panel-2" :duration="{ enter: 100, leave: 100 }" v-show="panel2" @mouseenter="showDetail(2)" ref="itemPanel2" @mouseleave="hideDetail(2)">
-        <div class="nav-detail-item">
-          <span v-for="(item, index) in panelData2.navTags" :key="index">{{item}} > </span>
-        </div>
-        <ul>
-          <li v-for="(items, index) in panelData2.classNav" :key="index" class="detail-item-row">
-            <span class="detail-item-title">{{items.title}}
-              <span class="glyphicon glyphicon-menu-right"></span>
-            </span>
-            <router-link to="/goodsList" v-for="(item, subIndex) in items.tags" :key="subIndex">
+            <router-link :to="'/GoodsList?ctype='.concat(item)" v-for="(item, subIndex) in items.name_3" :key="subIndex">
               <span class="detail-item">{{item}}</span>
             </router-link>
           </li>
@@ -137,7 +58,9 @@
 </template>
 
 <script>
-import store from '@/vuex/store';
+/* eslint-disable indent */
+
+  import store from '@/vuex/store';
 import { mapState } from 'vuex';
 export default {
   name: 'HomeNav',
@@ -145,141 +68,78 @@ export default {
     return {
       panel1: false,
       panel2: false,
+      step: 1,
+      currentTypeid: '',
+      // 一级标题
       nav: [
-        '秒杀',
-        '优惠券',
-        '闪购',
-        '拍卖',
-        '服装城',
-        '超市',
-        '生鲜',
-        '全球购',
-        '金融'
+        // '中古名表',
       ],
-      panelData1: {
-        navTags: [ '清洁用品', '美妆商城', '美妆馆', '妆比社', '全球购美妆', '宠物馆' ],
-        classNav: [
-          {
-            title: '面部护肤',
-            tags: [ '补水保湿', '卸妆', '洁面', '爽肤水', '乳液面霜', '精华', '眼霜', '防晒', '面膜', '剃须', '套装' ]
-          },
-          {
-            title: '洗发护发',
-            tags: [ '洗发', '护发', '染发', '造型', '假发', '美发工具', '套装' ]
-          },
-          {
-            title: '身体护理',
-            tags: [ '补水保湿', '沐浴', '润肤', '精油', '颈部', '手足', '纤体塑形', '美胸', '套装' ]
-          },
-          {
-            title: '口腔护理',
-            tags: [ '牙膏/牙粉', '牙刷/牙线', '漱口水', '套装' ]
-          },
-          {
-            title: '女性护理',
-            tags: [ '卫生巾', '卫生护垫', '私密护理', '脱毛膏' ]
-          },
-          {
-            title: '香水彩妆',
-            tags: [ 'BB霜', '化妆棉', '女士香水', '男士香水', '底妆', '眉笔', '睫毛膏', '眼线', '眼影', '唇膏/彩' ]
-          },
-          {
-            title: '清洁用品',
-            tags: [ '纸品湿巾', '衣物清洁', '清洁工具', '家庭清洁', '一次性用品', '驱虫用品', '皮具护理' ]
-          },
-          {
-            title: '宠物生活',
-            tags: [ '水族世界', '狗粮', '猫粮', '猫狗罐头', '狗零食', '猫零食', '医疗保健', '宠物玩具', '宠物服饰' ]
-          },
-          {
-            title: '香水彩妆',
-            tags: [ 'BB霜', '化妆棉', '女士香水', '男士香水', '底妆', '眉笔', '睫毛膏', '眼线', '眼影', '唇膏/彩' ]
-          },
-          {
-            title: '清洁用品',
-            tags: [ '纸品湿巾', '衣物清洁', '清洁工具', '家庭清洁', '一次性用品', '驱虫用品', '皮具护理' ]
-          },
-          {
-            title: '宠物生活',
-            tags: [ '水族世界', '狗粮', '猫粮', '猫狗罐头', '狗零食', '猫零食', '医疗保健', '宠物玩具', '宠物服饰' ]
-          }
-        ]
-      },
-      panelData2: {
-        navTags: [ '赛事', '运动城', '户外馆', '健身房', '骑行馆', '钟表城' ],
-        classNav: [
-          {
-            title: '2017新品',
-            tags: [ '休闲鞋', '商务休闲鞋', '正装鞋', '帆布鞋', '凉鞋', '拖鞋', '功能鞋', '增高鞋', '工装鞋', '雨鞋' ]
-          },
-          {
-            title: '运动鞋包',
-            tags: [ '跑步鞋', '休闲鞋', '篮球鞋', '帆布鞋', '板鞋', '拖鞋', '运动包' ]
-          },
-          {
-            title: '健身训练',
-            tags: [ '跑步机', '健身车/动感单车', '椭圆机', '综合训练器', '划船机', '甩脂机', '倒立机', '武术搏击' ]
-          },
-          {
-            title: '骑行运动',
-            tags: [ '山地车', '公路车', '折叠车', '骑行服', '电动车', '电动滑板车', '城市自行车', '平衡车' ]
-          },
-          {
-            title: '体育用品',
-            tags: [ '乒乓球', '羽毛球', '篮球', '足球', '轮滑滑板', '网球', '高尔夫', '台球', '排球' ]
-          },
-          {
-            title: '户外鞋服',
-            tags: [ '户外风衣', '徒步鞋', 'T恤', '冲锋衣裤', '速干衣裤', '越野跑鞋', '滑雪服', '羽绒服/棉服', '休闲衣裤' ]
-          },
-          {
-            title: '户外装备',
-            tags: [ '背包', '帐篷/垫子', '望远镜', '烧烤用具', '便携桌椅床', '户外配饰', '军迷用品', '野餐用品' ]
-          },
-          {
-            title: '垂钓用品',
-            tags: [ '钓竿', '鱼线', '浮漂', '鱼饵', '钓鱼配件', '渔具包', '钓箱钓椅', '鱼线轮', '钓鱼灯' ]
-          },
-          {
-            title: '游泳用品',
-            tags: [ '女士泳衣', '比基尼', '男士泳衣', '泳镜', '游泳圈', '游泳包防水包', '泳帽', '游泳配件' ]
-          },
-          {
-            title: '垂钓用品',
-            tags: [ '钓竿', '鱼线', '浮漂', '鱼饵', '钓鱼配件', '渔具包', '钓箱钓椅', '鱼线轮', '钓鱼灯' ]
-          },
-          {
-            title: '游泳用品',
-            tags: [ '女士泳衣', '比基尼', '男士泳衣', '泳镜', '游泳圈', '游泳包防水包', '泳帽', '游泳配件' ]
-          }
-        ]
-      }
+      // 所有标题
+      commodityType: [
+        // {
+        //   name_1: {},
+        //   twoNav: [
+        //     {
+        //       name_2: "",
+        //       name_3: ["", ""]
+        //     }
+        //   ]
+        // }
+      ]
     };
   },
   computed: {
     ...mapState(['marketing'])
   },
   methods: {
+    changeCurrent (currentTypeid) {
+      this.currentTypeid = currentTypeid;
+    },
+    showMore (typeid) {
+      this.getOneAllType(typeid);
+    },
     showDetail (index) {
+      this.showMore(this.currentTypeid);
       index === 1 ? (this.panel1 = true) : (this.panel2 = true);
     },
     hideDetail (index) {
       index === 1 ? (this.panel1 = false) : (this.panel2 = false);
+    },
+    getOneType () {
+      this.$axios.get('/oneType')
+        .then(successResponse => {
+          if (successResponse.data.code === 200) {
+            console.log('成功');
+            this.nav = successResponse.data.data;
+          }
+        })
+        .catch(failResponse => {
+        });
+    },
+    getOneAllType (index) {
+      this.$axios.get('ctype/' + index)
+        .then(successResponse => {
+          if (successResponse.data.code === 200) {
+            console.log('成功');
+            this.commodityType = successResponse.data.data;
+          }
+        })
+        .catch(failResponse => {
+        });
     }
   },
+  created () {
+    this.getOneType();
+  },
   mounted () {
-    this.$refs.itemPanel1.style.left =
-      this.$refs.navSide.offsetLeft + this.$refs.navSide.offsetWidth + 'px';
-    this.$refs.itemPanel2.style.left =
-      this.$refs.navSide.offsetLeft + this.$refs.navSide.offsetWidth + 'px';
+    this.$refs.itemPanel1.style.left = this.$refs.navSide.offsetLeft + this.$refs.navSide.offsetWidth + 'px';
+    this.$refs.itemPanel2.style.left = this.$refs.navSide.offsetLeft + this.$refs.navSide.offsetWidth + 'px';
     this.$refs.itemPanel1.style.top = this.$refs.navSide.offsetTop + 'px';
     this.$refs.itemPanel2.style.top = this.$refs.navSide.offsetTop + 'px';
   },
   updated () {
-    this.$refs.itemPanel1.style.left =
-      this.$refs.navSide.offsetLeft + this.$refs.navSide.offsetWidth + 'px';
-    this.$refs.itemPanel2.style.left =
-      this.$refs.navSide.offsetLeft + this.$refs.navSide.offsetWidth + 'px';
+    this.$refs.itemPanel1.style.left = this.$refs.navSide.offsetLeft + this.$refs.navSide.offsetWidth + 'px';
+    this.$refs.itemPanel2.style.left = this.$refs.navSide.offsetLeft + this.$refs.navSide.offsetWidth + 'px';
     this.$refs.itemPanel1.style.top = this.$refs.navSide.offsetTop + 'px';
     this.$refs.itemPanel2.style.top = this.$refs.navSide.offsetTop + 'px';
   },
@@ -288,21 +148,24 @@ export default {
 </script>
 
 <style scoped>
+  .rt{
+    float: right;
+    padding-right: 20px;
+  }
 .nav-item {
-  width: 680px;
+  width: 800px;
   height: 36px;
   margin: 0px auto;
 }
 .nav-item ul {
   list-style: none;
-  margin-left: 15px;
+  margin-left: 5px;
 }
 .nav-item li {
   float: left;
   font-size: 16px;
   font-weight: bold;
-
-  margin-left: 30px;
+  margin-left: 20px;
 }
 .nav-item a {
   text-decoration: none;
@@ -339,6 +202,9 @@ export default {
 }
 .nav-side li:hover {
   background: #999395;
+}
+.nav-side-item {
+  color: #fff;
 }
 .nav-side-item:hover {
   cursor: pointer;

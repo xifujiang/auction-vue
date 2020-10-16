@@ -10,31 +10,6 @@
       </Alert>
       <Table border ref="selection" :columns="columns" :data="myOrder" size="large" @on-selection-change="select" no-data-text="您的购物车没有商品，请先添加商品到购物车再点击购买">
       </Table>
-       <div class="address-container">
-        <h3>收货人信息</h3>
-        <div class="address-box">
-          <div class="address-check">
-            <div class="address-check-name">
-              <span><Icon type="ios-checkmark-outline"></Icon> {{checkAddress.name}}</span>
-            </div>
-            <div class="address-detail">
-              <p>{{checkAddress.address}}</p>
-            </div>
-          </div>
-          <Collapse>
-            <Panel>
-                选择地址 &nbsp;&nbsp;&nbsp;<router-link :to="{path:'/home/AddAddress'}" target="_blank">点击添加地址</router-link>
-                <p slot="content">
-                  <RadioGroup vertical size="large" @on-change="changeAddress">
-                    <Radio :label="item.addid" v-for="(item, index) in address" :key="index">
-                      <span>{{item.addressee}} {{item.province}} {{item.city}} {{item.part}} {{item.detail}} {{item.phone}} {{item.postalcode}}</span>
-                    </Radio>
-                  </RadioGroup>
-                </p>
-            </Panel>
-          </Collapse>
-        </div>
-      </div>
       <div class="remarks-container">
         <h3>备注</h3>
         <i-input v-model="remarks" size="large" placeholder="在这里填写备注信息" class="remarks-input"></i-input>
@@ -47,11 +22,11 @@
         <div class="pay-box">
           <p><span>提交订单应付总额：</span> <span class="money"><Icon type="social-yen"></Icon> {{totalPrice.toFixed(2)}}</span></p>
           <span>选择支付方式：
-              <el-radio v-model="radio" label="1">钱包支付</el-radio>
-              <el-radio v-model="radio" label="2">支付宝支付</el-radio>
-            </span>
+            <el-radio v-model="radio" label="1">钱包支付</el-radio>
+            <el-radio v-model="radio" label="2">支付宝支付</el-radio>
+          </span>
           <div class="pay-btn">
-            <Button type="error" size="large" @click="tradePay()">支付订单</Button>
+            <Button type="error" size="large" @click="tradePay()">支付保证金</Button>
           </div>
         </div>
       </div>
@@ -83,18 +58,16 @@
 import Search from '@/components/Search';
 import GoodsListNav from '@/components/nav/GoodsListNav';
 import store from '@/vuex/store';
-import { mapState, mapActions } from 'vuex';
+import { mapState } from 'vuex';
 import crypto from 'crypto';
-
 export default {
-  name: 'Order',
+  name: 'DepositOrder',
   beforeRouteEnter (to, from, next) {
     window.scrollTo(0, 0);
     next();
   },
   created () {
     this.getUid();
-    this.loadAddress();
     this.addOrder();
   },
   data () {
@@ -135,41 +108,42 @@ export default {
           align: 'center'
         },
         {
-          title: '价格',
+          title: '竞购价格',
           width: 180,
-          key: 'price',
+          key: 'bidprice',
+          align: 'center'
+        },
+        {
+          title: '保证金支付额',
+          width: 180,
+          key: 'deposit',
           align: 'center'
         }
       ],
-      checkAddress: {
-        name: '未选择',
-        address: '请选择地址'
-      },
+      flag: false,
       remarks: '',
       htmls: '',
       myOrder: [],
-      addressStruts: 0,
-      addressid: '',
       memberid: 0,
-      record: 2, // 用于记录下单类型，会放在订单前面做标记 （下单支付）
+      record: 1, // 用于记录下单类型，会放在订单前面做标记 （提交保证金）
       totalPrice: 0,
       radio: '1',
       modal: false,
-      uid: '',
-      userPackageTb: ''
+      userPackageTb: {},
+      passwd: '',
+      uid: ''
     };
   },
   computed: {
-    ...mapState(['address', 'shoppingCart'])
+    ...mapState(['shoppingCart'])
   },
   methods: {
-    ...mapActions(['loadAddress']),
     select (selection, row) {
       console.log(selection);
       var price = 0;
       selection.forEach(item => {
-        price += item.price;
-      })
+        price += item.deposit;
+      });
       this.totalPrice = price;
       this.reload();
     },
@@ -183,13 +157,15 @@ export default {
       let image = this.$route.query.image;
       let cname = this.$route.query.cname;
       let nature = this.$route.query.nature;
-      let price = this.$route.query.price;
+      let bidprice = this.$route.query.bidprice;
+      let deposit = this.$route.query.deposit;
       var data = [{
         cid: cid,
         cname: cname,
         image: image,
         nature: nature,
-        price: price
+        bidprice: bidprice,
+        deposit: deposit
       }];
       this.myOrder = data;
     },
@@ -207,37 +183,23 @@ export default {
         }
       });
     },
-    changeAddress (data) {
-      const father = this;
-      this.address.forEach(item => {
-        if (item.addid === data) {
-          father.checkAddress.name = item.name;
-          father.checkAddress.address = `${item.addressee} ${item.province} ${item.city} ${item.part} ${item.detail} ${item.phone} ${item.postalcode}`;
-          this.addressid = item.addid;
-        }
-      });
-      this.addressStruts = 1;
-    },
     getOrderInfo () {
       var orderInfo = {
-        tradeNo: this.$route.query.oid, // 商户订单号
+        tradeNo: this.record + this.randomNumber(), // 商户订单号
         cid: this.myOrder[0].cid,
         uid: this.uid,
         subject: this.$route.query.cname, // 订单名称
+        bidprice: this.myOrder[0].bidprice,
         totalPrice: this.totalPrice.toFixed(2), // 付款金额
         nature: this.myOrder[0].nature, // 商品描述
         remarks: this.remarks,
-        addressid: this.addressid
+        memberid: this.memberid
       };
       return orderInfo;
     },
     tradePay () { // 竞购 01
       if (this.totalPrice === 0) {
         alert('您未选择商品');
-        return;
-      }
-      if (this.addressStruts === 0) {
-        alert('您未选择地址,请选择地址');
         return;
       }
       if (this.radio === '1') {
@@ -319,76 +281,41 @@ export default {
 </script>
 
 <style scoped>
-.goods-list-container {
-  margin: 15px auto;
-  width: 80%;
-}
-.tips-box {
-  margin-bottom: 15px;
-}
-.address-container {
-  margin-top: 15px;
-}
-.address-box {
-  margin-top: 15px;
-  padding: 15px;
-  border: 1px #ccc dotted;
-}
-.address-check {
-  margin: 15px 0px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-}
-.address-check-name {
-  width: 120px;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  background-color: #ccc;
-}
-.address-check-name span {
-  width: 120px;
-  height: 36px;
-  font-size: 14px;
-  line-height: 36px;
-  text-align: center;
-  color: #fff;
-  background-color: #f90013;
-}
-.address-detail {
-  padding-left: 15px;
-  font-size: 14px;
-  color: #999999;
-}
-.remarks-container {
-  margin: 15px 0px;
-}
-.remarks-input {
-  margin-top: 15px;
-}
-.invoices-container p{
-  font-size: 12px;
-  line-height: 30px;
-  color: #999;
-}
-.pay-container {
-  margin: 15px;
-  display: flex;
-  justify-content: flex-end;
-}
-.pay-box {
-  font-size: 18px;
-  font-weight: bolder;
-  color: #495060;
-}
-.money {
-  font-size: 26px;
-  color: #f90013;
-}
-.pay-btn {
-  margin: 15px 0px;
-  display: flex;
-  justify-content: flex-end;
-}
+  .goods-list-container {
+    margin: 15px auto;
+    width: 80%;
+  }
+  .tips-box {
+    margin-bottom: 15px;
+  }
+  .remarks-container {
+    margin: 15px 0px;
+  }
+  .remarks-input {
+    margin-top: 15px;
+  }
+  .invoices-container p{
+    font-size: 12px;
+    line-height: 30px;
+    color: #999;
+  }
+  .pay-container {
+    margin: 15px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .pay-box {
+    font-size: 18px;
+    font-weight: bolder;
+    color: #495060;
+  }
+  .money {
+    font-size: 26px;
+    color: #f90013;
+  }
+  .pay-btn {
+    margin: 15px 0px;
+    display: flex;
+    justify-content: flex-end;
+  }
 </style>
